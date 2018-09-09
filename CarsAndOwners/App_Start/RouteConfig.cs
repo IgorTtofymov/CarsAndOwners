@@ -16,7 +16,7 @@ namespace CarsAndOwners
             routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
-                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+                defaults: new { controller = "owners", action = "Index", id = UrlParameter.Optional }
             );
         }
     }
