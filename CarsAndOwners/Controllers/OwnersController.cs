@@ -17,6 +17,9 @@ namespace CarsAndOwners.Controllers
         // GET: Owners
         public ActionResult Index()
         {
+            Owner o1 = new Owner() { Name = "Harry" };
+            db.Owners.Add(o1);
+            db.SaveChanges();
             return View(db.Owners.ToList());
         }
 

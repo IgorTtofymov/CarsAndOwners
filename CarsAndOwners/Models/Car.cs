@@ -17,7 +17,7 @@ namespace CarsAndOwners.Models
         public string Made { get; set; }
         public string  Model { get; set; }
         [Display(Name ="Car type")]
-        public TypeOfCar TyoeOfCar { get; set; }
+        public TypeOfCar TypeOfCar { get; set; }
         [Display(Name ="Was made in (year)")]
         [Range(1950,2018)]
         public int YearOfMade { get; set; }

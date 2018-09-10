@@ -97,7 +97,7 @@ namespace CarsAndOwners.Controllers
                 newCar.Made = car.Made;
                 newCar.Model = car.Model;
                 newCar.Price = car.Price;
-                newCar.TyoeOfCar = car.TyoeOfCar;
+                newCar.TypeOfCar = car.TypeOfCar;
                 newCar.YearOfMade = car.YearOfMade;
                 newCar.Owners.Clear();
                 if (selectedOwners != null)
