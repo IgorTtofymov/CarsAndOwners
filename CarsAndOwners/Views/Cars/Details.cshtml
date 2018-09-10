@@ -1,0 +1,72 @@
+﻿@model CarsAndOwners.Models.Car
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Car</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Made)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Made)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Model)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Model)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TyoeOfCar)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TyoeOfCar)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.YearOfMade)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.YearOfMade)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Price)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Price)
+        </dd>
+        @if (Model.Owners.Count > 0)
+        {
+            <dt>
+                @Html.DisplayName("Owners")
+            </dt>
+            <dd>
+                <ul>
+                    @foreach (var owner in Model.Owners)
+                    {
+                        <li>@owner.Name @owner.SecondName</li>
+                    }
+                </ul>
+            </dd>
+        }
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

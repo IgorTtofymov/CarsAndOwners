@@ -1,0 +1,64 @@
+﻿@using CarsAndOwners.Models
+@model Owner
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Owner</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.SecondName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.SecondName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.YearOfBirth)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.YearOfBirth)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.yearsOfExpirience)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.yearsOfExpirience)
+        </dd>
+        @if (Model.Cars.Count > 0)
+        {
+            <dt>
+                @Html.DisplayName("Cars")
+            </dt>
+            <dd>
+                <ul>
+                    @foreach (var car in Model.Cars)
+                    {
+                        <li>@car.Made @car.Model</li>
+                    }
+                </ul>
+            </dd>
+        }
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
