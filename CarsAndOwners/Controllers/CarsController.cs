@@ -7,17 +7,26 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using CarsAndOwners.Models;
+using CarsAndOwners.Models.Repository;
+using Ninject;
 
 namespace CarsAndOwners.Controllers
 {
     public class CarsController : Controller
     {
-        private CarOwnerContext db = new CarOwnerContext();
+        private IRepository<Car, Owner> db;
+
+        public CarsController()
+        {
+            IKernel kernel = new StandardKernel();
+            kernel.Bind<IRepository<Car, Owner>>().To<CarSQLRepository>();
+            db = kernel.Get<IRepository<Car,Owner>>();
+        }
 
         // GET: Cars
         public ActionResult Index()
         {
-            return View(db.Cars.ToList());
+            return View(db.GetInstances());
         }
 
         // GET: Cars/Details/5
@@ -27,8 +36,8 @@ namespace CarsAndOwners.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Car car = db.Cars.Find(id);
-            IEnumerable<Owner> owners = db.Owners.ToList();
+            Car car = db.GetInstance(id);
+            IEnumerable<Owner> owners = db.GetConnectedInstances().ToList();
             ViewBag.Owners = owners;
             if (car == null)
             {
@@ -40,7 +49,7 @@ namespace CarsAndOwners.Controllers
         // GET: Cars/Create
         public ActionResult Create()
         {
-            ViewBag.Owners = db.Owners.ToList();
+            ViewBag.Owners = db.GetConnectedInstances().ToList();
             return View();
         }
 
@@ -49,19 +58,19 @@ namespace CarsAndOwners.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Made,Model,TyoeOfCar,YearOfMade,Price")] Car car, int[] selectedOwners)
+        public ActionResult Create([Bind(Include = "Id,Made,Model,TypeOfCar,YearOfMade,Price")] Car car, int[] selectedOwners)
         {
             if (ModelState.IsValid)
             {
                 if (selectedOwners != null)
                 {
-                    foreach (var owner in db.Owners.Where(own => selectedOwners.Contains(own.Id)))
+                    foreach (var owner in db.GetConnectedInstances().Where(own => selectedOwners.Contains(own.Id)))
                     {
                         car.Owners.Add(owner);
                     }
                 }
-                db.Cars.Add(car);
-                db.SaveChanges();
+                db.Create(car);
+                db.Save();
                 return RedirectToAction("Index");
             }
 
@@ -75,12 +84,12 @@ namespace CarsAndOwners.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Car car = db.Cars.Find(id);
+            Car car = db.GetInstance(id);
             if (car == null)
             {
                 return HttpNotFound();
             }
-            ViewBag.Owners = db.Owners.ToList();
+            ViewBag.Owners = db.GetConnectedInstances().ToList();
             return View(car);
         }
 
@@ -89,11 +98,11 @@ namespace CarsAndOwners.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Made,Model,TyoeOfCar,YearOfMade,Price")] Car car, int[] selectedOwners)
+        public ActionResult Edit([Bind(Include = "Id,Made,Model,TypeOfCar,YearOfMade,Price")] Car car, int[] selectedOwners)
         {
             if (ModelState.IsValid)
             {
-                Car newCar = db.Cars.Find(car.Id);
+                Car newCar = db.GetInstance(car.Id);
                 newCar.Made = car.Made;
                 newCar.Model = car.Model;
                 newCar.Price = car.Price;
@@ -102,13 +111,13 @@ namespace CarsAndOwners.Controllers
                 newCar.Owners.Clear();
                 if (selectedOwners != null)
                 {
-                    foreach (var owner in db.Owners.Where(own=>selectedOwners.Contains(own.Id)))
+                    foreach (var owner in db.GetConnectedInstances().Where(own=>selectedOwners.Contains(own.Id)))
                     {
                         newCar.Owners.Add(owner);
                     }
                 }
-                db.Entry(newCar).State = EntityState.Modified;
-                db.SaveChanges();
+                db.Update(newCar);
+                db.Save();
                 return RedirectToAction("Index");
             }
             return View(car);
@@ -121,7 +130,7 @@ namespace CarsAndOwners.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Car car = db.Cars.Find(id);
+            Car car = db.GetInstance(id);
 
             if (car == null)
             {
@@ -135,14 +144,8 @@ namespace CarsAndOwners.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Car car = db.Cars.Find(id);
-            foreach (Owner owner in db.Owners.Include(o=>o.Cars))
-            {
-                if(owner.Cars.Contains(car))
-                owner.Cars.Remove(car);
-            }
-            db.Cars.Remove(car);
-            db.SaveChanges();
+            db.Delete(id);
+            db.Save();
             return RedirectToAction("Index");
         }
 

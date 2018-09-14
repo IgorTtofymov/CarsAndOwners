@@ -7,20 +7,25 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using CarsAndOwners.Models;
+using CarsAndOwners.Models.Repository;
+using Ninject;
 
 namespace CarsAndOwners.Controllers
 {
     public class OwnersController : Controller
     {
-        private CarOwnerContext db = new CarOwnerContext();
+        private IRepository<Owner, Car> db;
+        public OwnersController()
+        {
+            IKernel kernel = new StandardKernel();
+            kernel.Bind<IRepository<Owner, Car>>().To<OwnerSQLRepositopy>();
+            db =kernel.Get<IRepository<Owner,Car>>();
+        }
 
         // GET: Owners
         public ActionResult Index()
         {
-            Owner o1 = new Owner() { Name = "Harry" };
-            db.Owners.Add(o1);
-            db.SaveChanges();
-            return View(db.Owners.ToList());
+            return View(db.GetInstances());
         }
 
         // GET: Owners/Details/5
@@ -30,7 +35,7 @@ namespace CarsAndOwners.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Owner owner = db.Owners.Find(id);
+            Owner owner = db.GetInstance(id);
             if (owner == null)
             {
                 return HttpNotFound();
@@ -41,7 +46,7 @@ namespace CarsAndOwners.Controllers
         // GET: Owners/Create
         public ActionResult Create()
         {
-            var cars = db.Cars.ToList();
+            var cars = db.GetConnectedInstances().ToList();
             ViewBag.Cars = cars;
             return View();
         }
@@ -57,13 +62,13 @@ namespace CarsAndOwners.Controllers
             {
                 if (selectedCars != null)
                 {
-                    foreach (var car in db.Cars.Where(car=>selectedCars.Contains(car.Id)))
+                    foreach (var car in db.GetConnectedInstances().Where(car=>selectedCars.Contains(car.Id)))
                     {
                         owner.Cars.Add(car);
                     }
                 }
-                db.Owners.Add(owner);
-                db.SaveChanges();
+                db.Create(owner);
+                db.Save();
                 return RedirectToAction("Index", "Owners");
             }
 
@@ -77,12 +82,12 @@ namespace CarsAndOwners.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Owner owner = db.Owners.Find(id);
+            Owner owner = db.GetInstance(id);
             if (owner == null)
             {
                 return HttpNotFound();
             }
-            var cars = db.Cars.ToList();
+            var cars = db.GetConnectedInstances().ToList();
             ViewBag.Cars = cars;
             return View(owner);
         }
@@ -96,7 +101,7 @@ namespace CarsAndOwners.Controllers
         {
             if (ModelState.IsValid)
             {
-                Owner newOwner = db.Owners.Find(owner.Id);
+                Owner newOwner = db.GetInstance(owner.Id);
                 newOwner.Name = owner.Name;
                 newOwner.SecondName = owner.SecondName;
                 newOwner.YearOfBirth = owner.YearOfBirth;
@@ -104,13 +109,13 @@ namespace CarsAndOwners.Controllers
                 newOwner.Cars.Clear();
                 if (selectedCars != null)
                 {
-                    foreach (var car in db.Cars.Where(car=>selectedCars.Contains(car.Id)))
+                    foreach (var car in db.GetConnectedInstances().Where(car=>selectedCars.Contains(car.Id)))
                     {
                         newOwner.Cars.Add(car);
                     }
                 }
-                db.Entry(newOwner).State = EntityState.Modified;
-                db.SaveChanges();
+                db.Update(newOwner);
+                db.Save();
                 return RedirectToAction("Index");
             }
             return View(owner);
@@ -123,7 +128,7 @@ namespace CarsAndOwners.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Owner owner = db.Owners.Find(id);
+            Owner owner = db.GetInstance(id);
             if (owner == null)
             {
                 return HttpNotFound();
@@ -136,15 +141,8 @@ namespace CarsAndOwners.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Owner owner = db.Owners.Find(id);
-            foreach (var car in db.Cars.Include(c=>c.Owners))
-            {
-                if(car.Owners.Contains(owner))
-                car.Owners.Remove(owner);
-            }
-            db.SaveChanges();
-            db.Owners.Remove(owner);
-            db.SaveChanges();
+            db.Delete(id);
+            db.Save();
             return RedirectToAction("Index");
         }
 

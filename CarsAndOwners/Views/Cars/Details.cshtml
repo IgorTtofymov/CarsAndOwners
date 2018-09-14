@@ -49,20 +49,29 @@
         <dd>
             @Html.DisplayFor(model => model.Price)
         </dd>
+
+        <dt>
+            @Html.DisplayName("Horn")
+        </dt>
+
+        <dd>
+            @*<p>@Model.Horn.Signal()</p>*@
+        </dd>
+
         @if (Model.Owners.Count > 0)
-        {
-            <dt>
-                @Html.DisplayName("Owners")
-            </dt>
-            <dd>
-                <ul>
-                    @foreach (var owner in Model.Owners)
-                    {
-                        <li>@owner.Name @owner.SecondName</li>
-                    }
-                </ul>
-            </dd>
+    {
+        <dt>
+            @Html.DisplayName("Owners")
+        </dt>
+        <dd>
+            <ul>
+                @foreach (var owner in Model.Owners)
+            {
+                <li>@owner.Name @owner.SecondName</li>
         }
+            </ul>
+        </dd>
+}
 
     </dl>
 </div>
