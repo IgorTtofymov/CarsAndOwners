@@ -13,7 +13,7 @@ namespace CarsAndOwners.Util
     {
         public override void Load()
         {
-            //Bind<IRepository<Car, Owner>>().To<CarSQLRepository>();
+            Bind<IRepository<Car, Owner>>().To<CarSQLRepository>();
             Bind<IRepository<Owner, Car>>().To<OwnerSQLRepositopy>();
         }
     }

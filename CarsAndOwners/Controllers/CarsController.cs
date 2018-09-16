@@ -16,11 +16,9 @@ namespace CarsAndOwners.Controllers
     {
         private IRepository<Car, Owner> db;
 
-        public CarsController()
+        public CarsController(IRepository<Car,Owner> repo)
         {
-            IKernel kernel = new StandardKernel();
-            kernel.Bind<IRepository<Car, Owner>>().To<CarSQLRepository>();
-            db = kernel.Get<IRepository<Car,Owner>>();
+            db = repo;
         }
 
         // GET: Cars
@@ -49,7 +47,7 @@ namespace CarsAndOwners.Controllers
         // GET: Cars/Create
         public ActionResult Create()
         {
-            ViewBag.Owners = db.GetConnectedInstances().ToList();
+            TempData["Owners"] = db.GetConnectedInstances().ToList();
             return View();
         }
 
@@ -89,7 +87,7 @@ namespace CarsAndOwners.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.Owners = db.GetConnectedInstances().ToList();
+            TempData["Owners"] = db.GetConnectedInstances().ToList();
             return View(car);
         }
 

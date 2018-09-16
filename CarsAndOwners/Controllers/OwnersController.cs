@@ -15,11 +15,9 @@ namespace CarsAndOwners.Controllers
     public class OwnersController : Controller
     {
         private IRepository<Owner, Car> db;
-        public OwnersController()
+        public OwnersController(IRepository<Owner, Car> repo)
         {
-            IKernel kernel = new StandardKernel();
-            kernel.Bind<IRepository<Owner, Car>>().To<OwnerSQLRepositopy>();
-            db =kernel.Get<IRepository<Owner,Car>>();
+            db = repo;
         }
 
         // GET: Owners
